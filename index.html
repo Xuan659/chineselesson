@@ -24,7 +24,7 @@ const names = ['生難字詞','閱讀提問'];
 const groupName = n => '第'+chinese[n-1]+'組';
 const headings = [['生難字詞','易錯字或注音'],['提取或推論型問題','評論型問題']];
 const offline = false;
-const apiOrigin = 'https://chinese-classroom-api.sn175970.workers.dev/';
+const apiOrigin = 'https://chinese-classroom-api.sn175970.workers.dev';
 const combinedQuestion = answer => answer.question ?? [
   answer.literal && '提取型｜'+answer.literal,
   answer.infer && '推論型｜'+answer.infer
@@ -39,6 +39,7 @@ const blank = config => ({config,rounds:[{phase:'waiting',answers:{}},{phase:'wa
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let state, room, teacher, route, step=0, drafts = {};
 let version = 0;
+let loadedRoom;
 let flushDraft;
 const read = key => {try{return JSON.parse(localStorage.getItem(key));}catch{return null;}};
 const save = (key,val) => localStorage.setItem(key,JSON.stringify(val));
@@ -90,6 +91,7 @@ function teacherPage(){
   const priorKey='reading-lab-pages-v1:'+location.pathname.replace(/(?:index\.html)?$/,'').replace(/\/$/,'')+'/classroom';
   const config=state?.config || read(priorKey)?.config || preset;
   app.innerHTML=hero('教師控制台','國語任務教室','設定課文、收取作答，並帶全班依序分享。')+
+    '<div class="card"><button class="secondary" id="resume">載入最新課堂</button><p class="muted">換裝置，或在另一台裝置建立新課後，按這裡接回最新的課堂。</p></div>'+
     (state?'<div class="card"><h2>'+esc(state.config.title)+'</h2>'+
       (!offline?'<div class="bar"><button class="secondary" id="copy">複製本堂課學生入口</button></div><p class="muted">學生開啟連結後，可選自己的組別。</p>':'')+
       '<div class="grid">'+state.rounds.map((round,i)=>{
@@ -104,6 +106,22 @@ function teacherPage(){
       field('課文名稱','title',config.title,false,100)+
       groups.map(n=>'<fieldset><legend>'+groupName(n)+'</legend>'+field('第一關｜分配詞語','w'+n,config.groups[n-1].word,false,150)+field('第二關｜分配段落（可填段落編號或貼上內文）','p'+n,config.groups[n-1].paragraph,true,5000)+'</fieldset>').join('')+
       '<button>建立這堂課</button></form></details>';
+  document.querySelector('#resume').onclick=async event=>{
+    const button=event.currentTarget;
+    const setupCode=prompt('請輸入教師開課密碼');
+    if(setupCode===null)return;
+    button.disabled=true;
+    try{
+      const latest=await api('resume',{setupCode});
+      const keys={room:latest.room,teacher:latest.teacher};
+      save(teacherKey,keys);
+      ({room,teacher}=keys);
+      state=latest.state;
+      drafts={};
+      teacherPage();
+      status('已載入最新課堂。');
+    }catch(error){status(error.message,true);button.disabled=false;}
+  };
   document.querySelector('#config').onsubmit=async event=>{
     event.preventDefault();
     if(state && !confirm(offline?'建立新課會清空這個瀏覽器的本堂作答。確定建立？':'確定建立新課並切換教師控制台？'))return;
@@ -138,7 +156,7 @@ function student(n){
     '<section class="card"><span class="tag">第'+chinese[i]+'關</span><h2>'+names[i]+'</h2><p class="progress">'+(round.answers[n]?'已提交 · ':'')+phaseName(round.phase)+'</p>'+
     (round.phase==='open'?'<a class="btn" href="#group/'+n+'/'+i+'">'+(round.answers[n]?'查看或修改':'開始作答')+'</a>':'')+'</section>').join('')+
     '</div><div class="bar"><button class="secondary" id="refresh">更新作答狀態</button></div>'+notice+'</section>';
-  document.querySelector('#refresh').onclick=render;
+  document.querySelector('#refresh').onclick=()=>render(true);
 }
 function answerPage(n,i){
   const round=state.rounds[i], task=state.config.groups[n-1];
@@ -201,7 +219,10 @@ function answerPage(n,i){
       dirty=false;clearTimeout(draftTimer);
       try{if(!offline&&!teacher)save(answerKey,answer);localStorage.removeItem(draftKey);}catch{/* Submission is already saved on the server. */}
       delete drafts[key];
-      if(form.isConnected)location.hash='group/'+n;
+      if(form.isConnected){
+        if(!offline&&!teacher)round.answers[n]=true;
+        location.hash='group/'+n;
+      }
     }
     catch(error){if(form.isConnected)status(error.message,true);button.disabled=false;fields.forEach(fieldset=>fieldset.disabled=false);}
   };
@@ -215,14 +236,14 @@ async function syncStudentPhase(){
   checkingStudentPhase=true;
   const request=version;
   try{
-    const latest=await api('get');
+    const {phases}=await api('status');
     if(request!==version || document.querySelector('.submit:disabled'))return;
     const activeRound=[0,1].includes(i);
-    const changed=latest.rounds.some((item,index)=>(!activeRound || index===i) && item.phase!==state.rounds[index].phase);
+    const changed=phases.some((phase,index)=>(!activeRound || index===i) && phase!==state.rounds[index].phase);
+    state.rounds.forEach((item,index)=>item.phase=phases[index]);
     if(!changed)return;
     flushDraft?.();
     flushDraft=undefined;
-    state=latest;
     if(activeRound)answerPage(n,i);else student(n);
   }catch{/* Keep the current screen and try again at the next check. */}
   finally{checkingStudentPhase=false;}
@@ -247,7 +268,7 @@ function show(i){
   (next || document.querySelector('a[href="#teacher"]'))?.focus();
   window.scrollTo(0,0);
 }
-async function render(){
+async function render(forceRefresh=false){
   flushDraft?.();
   flushDraft=undefined;
   document.body.classList.remove('projecting');
@@ -258,9 +279,11 @@ async function render(){
   teacher=params.has('class')?undefined:keys?.teacher;
   route=location.hash.slice(1).split('/');
   try{
-    const value=offline||room?await api('get'):null;
+    const cachedStudent=!offline && !teacher && room && room===loadedRoom && state && forceRefresh!==true;
+    const value=cachedStudent?state:offline||room?await api('get'):null;
     if(request!==version)return;
     state=value;
+    loadedRoom=room;
     const [page,first,second]=route;
     const n=Number(first), round=Number(second);
     if((teacher||offline||!params.has('class'))&&page==='teacher'){teacherPage();return;}
@@ -276,7 +299,7 @@ async function render(){
   }
 }
 addEventListener('hashchange',render);
-if(!offline)setInterval(syncStudentPhase,3000);
+if(!offline)setInterval(syncStudentPhase,3000+Math.random()*700);
 addEventListener('pagehide',()=>flushDraft?.());
 addEventListener('keydown',event=>{
   if(!document.body.classList.contains('projecting') || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey)return;
