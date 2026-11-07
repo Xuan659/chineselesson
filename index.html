@@ -297,23 +297,27 @@ function selectLesson() {
   if (url.hash.startsWith('#lesson=')) {
     const {id,config} = decodeLesson(url.hash.slice(8));
     url.searchParams.set('lesson',id);
-    url.hash = '';
     localKey = storageScope+'/classroom/'+id;
     teacherKey = storageScope+'/teacher/'+id;
     if (!read(localKey)) {
       save(localKey,blank(config));
       save(teacherKey,{room:id,teacher:'local'});
     }
-    history.replaceState(null,'',url.href);
+    if (url.href !== location.href) history.replaceState(null,'',url.href);
     return;
   }
   const id = url.searchParams.get('lesson');
   if (id === null) return;
-  if (!validLessonId(id) || !read(storageScope+'/classroom/'+id)) {
+  const saved = validLessonId(id) && read(storageScope+'/classroom/'+id);
+  if (!saved) {
     throw Error('請使用老師提供的完整本課連結。');
   }
   localKey = storageScope+'/classroom/'+id;
   teacherKey = storageScope+'/teacher/'+id;
+  if (!url.hash) {
+    url.hash = 'lesson='+encodeLesson({id,config:saved.config});
+    history.replaceState(null,'',url.href);
+  }
 }
 
 function startPages() {
