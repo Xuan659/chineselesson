@@ -23,7 +23,8 @@ const chinese = '一二三四五六七';
 const names = ['生難字詞','閱讀提問'];
 const groupName = n => '第'+chinese[n-1]+'組';
 const headings = [['生難字詞','易錯字或注音'],['提取或推論型問題','評論型問題']];
-const offline = true;
+const offline = false;
+const apiOrigin = 'https://chinese-classroom-api.sn175970.workers.dev/';
 const combinedQuestion = answer => answer.question ?? [
   answer.literal && '提取型｜'+answer.literal,
   answer.infer && '推論型｜'+answer.infer
@@ -41,8 +42,7 @@ let version = 0;
 let flushDraft;
 const read = key => {try{return JSON.parse(localStorage.getItem(key));}catch{return null;}};
 const save = (key,val) => localStorage.setItem(key,JSON.stringify(val));
-const storageScope = 'reading-lab-pages-v1:'+location.pathname.replace(/(?:index\.html)?$/,'').replace(/\/$/,'');
-let localKey = storageScope+'/classroom', teacherKey = storageScope+'/teacher';
+const localKey = 'reading-lab-local-v1', teacherKey = 'reading-lab-teacher-v1';
 function status(message, error=false){
   const target=document.querySelector('#notice');
   if(target){target.textContent=message;target.className=error?'err':'status';}
@@ -61,11 +61,12 @@ async function api(action, data={}){
     save(localKey,value);
     return value;
   }
+  if(!apiOrigin.startsWith('https://'))throw Error('請先設定課堂同步服務的網址。');
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(),15000);
   let response, value;
   try{
-    response=await fetch('/api',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,room,teacher,...data}),signal:controller.signal});
+    response=await fetch(new URL('/api',apiOrigin),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,room,teacher,...data}),signal:controller.signal});
     value=await response.json();
   }catch{
     throw Error('暫時連不上課堂，請確認網路後再試一次。');
@@ -81,14 +82,16 @@ function groupHref(n){return offline?'#group/'+n:location.origin+location.pathna
 function home(){
   const cards=groups.map(n=>'<div class="card"><div class="progress">GROUP 0'+n+'</div><h3>'+groupName(n)+'</h3><a class="btn secondary" href="'+groupHref(n)+'">進入小組</a></div>').join('');
   app.innerHTML=hero('六年級 · 國語',state?.config.title || '六年級閱讀任務','第一關　生難字詞　｜　第二關　閱讀提問')+
+    (offline?'<p class="muted">單機版｜作答與設定保存在這個瀏覽器。</p>':'')+
     (state?'<section class="student-area"><h2>選擇你的小組</h2><div class="grid">'+cards+'</div></section>':'<div class="card">請用老師提供的本堂課連結進入。</div>')+
     (new URLSearchParams(location.search).has('class')?'':'<div class="bar"><a href="#teacher" class="btn">教師控制台</a></div>')+notice;
 }
 function teacherPage(){
-  const config=state?.config || preset;
+  const priorKey='reading-lab-pages-v1:'+location.pathname.replace(/(?:index\.html)?$/,'').replace(/\/$/,'')+'/classroom';
+  const config=state?.config || read(priorKey)?.config || preset;
   app.innerHTML=hero('教師控制台','國語任務教室','設定課文、收取作答，並帶全班依序分享。')+
     (state?'<div class="card"><h2>'+esc(state.config.title)+'</h2>'+
-      '<div class="bar"><button class="secondary" id="copy">複製本課連結</button></div><p class="muted">連結可帶入課文與七組分配。首次開啟時，兩關都由老師手動開放。</p>'+
+      (!offline?'<div class="bar"><button class="secondary" id="copy">複製本堂課學生入口</button></div><p class="muted">學生開啟連結後，可選自己的組別。</p>':'')+
       '<div class="grid">'+state.rounds.map((round,i)=>{
         const count=Object.values(round.answers).filter(Boolean).length;
         const controls=round.phase==='open'
@@ -97,7 +100,7 @@ function teacherPage(){
             (round.phase==='closed'?'<a class="btn secondary" href="#show/'+i+'">開始展示</a>':'')+'</div>';
         return '<section class="card"><h3>第'+chinese[i]+'關｜'+names[i]+'</h3><p class="progress">'+phaseName(round.phase)+' · '+count+' / 7 組</p><p><small>'+groups.map(n=>n+'組 '+(round.answers[n]?'✓':'○')).join('　')+'</small></p>'+controls+'</section>';
       }).join('')+'</div><div class="bar"><button class="secondary" id="refresh">更新交卷狀態</button></div></div>':'')+
-    notice+'<details class="card" '+(state?'':'open')+'><summary>更換課文／建立新一堂課</summary><form id="config"><p class="muted">課文與七組任務會保存在這個瀏覽器。建立新課會替換目前課文及作答。</p>'+
+    notice+'<details class="card" '+(state?'':'open')+'><summary>更換課文／建立新一堂課</summary><form id="config"><p class="muted">可先修改示範內容。建立新課後，請使用新一堂課的學生入口。</p>'+
       field('課文名稱','title',config.title,false,100)+
       groups.map(n=>'<fieldset><legend>'+groupName(n)+'</legend>'+field('第一關｜分配詞語','w'+n,config.groups[n-1].word,false,150)+field('第二關｜分配段落（可填段落編號或貼上內文）','p'+n,config.groups[n-1].paragraph,true,5000)+'</fieldset>').join('')+
       '<button>建立這堂課</button></form></details>';
@@ -109,8 +112,10 @@ function teacherPage(){
     if(!config.title || config.groups.some(g=>!g.word || !g.paragraph))return status('請完整填寫課名、詞語與段落。',true);
     form.querySelector('button').disabled=true;
     try{
-      const keys={room:globalThis.crypto?.randomUUID?.() || Date.now()+'-'+Math.random(),teacher:'local'};
-      state=await api('new',{...keys,config});
+      const keys={room:offline?'local':crypto.randomUUID(),teacher:offline?'local':crypto.randomUUID()};
+      const setupCode=prompt('請輸入教師開課密碼');
+      if(setupCode===null){form.querySelector('button').disabled=false;return;}
+      state=await api('new',{...keys,config,setupCode});
       ({room,teacher}=keys); save(teacherKey,keys); drafts={}; teacherPage(); status('新一堂課已建立。');
     }catch(error){status(error.message,true);form.querySelector('button').disabled=false;}
   };
@@ -124,8 +129,8 @@ function teacherPage(){
   if(refresh)refresh.onclick=async ()=>{try{state=await api('get');teacherPage();status('交卷狀態已更新。');}catch(error){status(error.message,true);}};
   const copy=document.querySelector('#copy');
   if(copy)copy.onclick=async ()=>{
-    const url=lessonLink(state);
-    try{await navigator.clipboard.writeText(url);status('已複製本課連結。');}catch{prompt('請複製本課連結',url);}
+    const url=location.origin+location.pathname+'?class='+encodeURIComponent(room);
+    try{await navigator.clipboard.writeText(url);status('已複製學生入口。');}catch{status(url);}
   };
 }
 function student(n){
@@ -139,9 +144,9 @@ function answerPage(n,i){
   const round=state.rounds[i], task=state.config.groups[n-1];
   if(round.phase!=='open'){student(n);return status('這一關目前未開放作答。');}
   const key=n+'/'+i, answerKey='reading-lab-answer/'+room+'/'+key;
-  const draftKey=storageScope+'/draft/'+(room || 'demo')+'/'+key;
+  const draftKey='reading-lab-draft/'+room+'/'+key;
   const previous=offline||teacher ? round.answers[n] : read(answerKey);
-  const data=drafts[draftKey] ||= structuredClone(read(draftKey) || previous || {});
+  const data=drafts[key] ||= structuredClone(read(draftKey) || previous || {});
   data.selected ||= [];
   data.reasons ||= {};
   const content=i===0?
@@ -154,15 +159,16 @@ function answerPage(n,i){
   const form=document.querySelector('form');
   let draftTimer;
   let dirty=false;
-  flushDraft=()=>{
+  const saveDraft=()=>{
     clearTimeout(draftTimer);
     if(!dirty)return;
     try{save(draftKey,data);}catch{/* The open form still retains the draft. */}
   };
+  flushDraft=saveDraft;
   const queueDraft=()=>{
     dirty=true;
     clearTimeout(draftTimer);
-    draftTimer=setTimeout(flushDraft,300);
+    draftTimer=setTimeout(saveDraft,300);
   };
   form.oninput=event=>{
     const name=event.target.name;
@@ -188,17 +194,38 @@ function answerPage(n,i){
     const button=form.querySelector('button');button.disabled=true;
     const fields=[...form.querySelectorAll('fieldset')];
     fields.forEach(fieldset=>fieldset.disabled=true);
-    flushDraft();
+    saveDraft();
     status('正在提交小組答案…');
     try{
       await api('answer',{round:i,group:n,answer});
       dirty=false;clearTimeout(draftTimer);
       try{if(!offline&&!teacher)save(answerKey,answer);localStorage.removeItem(draftKey);}catch{/* Submission is already saved on the server. */}
-      delete drafts[draftKey];
+      delete drafts[key];
       if(form.isConnected)location.hash='group/'+n;
     }
     catch(error){if(form.isConnected)status(error.message,true);button.disabled=false;fields.forEach(fieldset=>fieldset.disabled=false);}
   };
+}
+let checkingStudentPhase=false;
+async function syncStudentPhase(){
+  if(offline || teacher || !room || !state || document.hidden || checkingStudentPhase)return;
+  const [page,group,round]=route;
+  const n=Number(group), i=Number(round);
+  if(page!=='group' || !groups.includes(n))return;
+  checkingStudentPhase=true;
+  const request=version;
+  try{
+    const latest=await api('get');
+    if(request!==version || document.querySelector('.submit:disabled'))return;
+    const activeRound=[0,1].includes(i);
+    const changed=latest.rounds.some((item,index)=>(!activeRound || index===i) && item.phase!==state.rounds[index].phase);
+    if(!changed)return;
+    flushDraft?.();
+    flushDraft=undefined;
+    state=latest;
+    if(activeRound)answerPage(n,i);else student(n);
+  }catch{/* Keep the current screen and try again at the next check. */}
+  finally{checkingStudentPhase=false;}
 }
 function show(i){
   if(!state || state.rounds[i]?.phase!=='closed'){teacherPage();return;}
@@ -248,7 +275,8 @@ async function render(){
     document.querySelector('#retry')?.addEventListener('click',render);
   }
 }
-addEventListener('hashchange',startPages);
+addEventListener('hashchange',render);
+if(!offline)setInterval(syncStudentPhase,3000);
 addEventListener('pagehide',()=>flushDraft?.());
 addEventListener('keydown',event=>{
   if(!document.body.classList.contains('projecting') || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey)return;
@@ -257,79 +285,6 @@ addEventListener('keydown',event=>{
   event.preventDefault();
   document.querySelector(control)?.click();
 });
-function encodeLesson(lesson) {
-  const bytes = new TextEncoder().encode(JSON.stringify(lesson));
-  let binary = '';
-  for (const byte of bytes) binary += String.fromCharCode(byte);
-  return btoa(binary).replaceAll('+','-').replaceAll('/','_').replace(/=+$/,'');
-}
-
-function decodeLesson(payload) {
-  if (payload.length > 180000 || !/^[A-Za-z0-9_-]+$/.test(payload)) throw Error('課程連結格式有誤。');
-  const bytes = Uint8Array.from(atob(payload.replaceAll('-','+').replaceAll('_','/')),c=>c.charCodeAt(0));
-  const {id,config} = JSON.parse(new TextDecoder().decode(bytes));
-  const valid = (value,max) => typeof value==='string' && value.trim() && value.length<=max;
-  if (!validLessonId(id) || !valid(config?.title,100) ||
-      !Array.isArray(config.groups) || config.groups.length!==7 ||
-      !config.groups.every(group=>valid(group?.word,150)&&valid(group?.paragraph,5000))) {
-    throw Error('課程連結缺少課文或組別資料。');
-  }
-  return {id,config};
-}
-
-function validLessonId(id) {
-  return typeof id==='string' && /^[a-z0-9.-]{12,60}$/i.test(id);
-}
-
-function lessonLink({config}) {
-  const id = read(teacherKey)?.room || globalThis.crypto?.randomUUID?.() || Date.now()+'-'+Math.random();
-  const url = new URL(location.href);
-  url.searchParams.delete('lesson');
-  url.searchParams.delete('class');
-  url.hash = 'lesson='+encodeLesson({id,config});
-  return url.href;
-}
-
-function selectLesson() {
-  const url = new URL(location.href);
-  localKey = storageScope+'/classroom';
-  teacherKey = storageScope+'/teacher';
-  if (url.hash.startsWith('#lesson=')) {
-    const {id,config} = decodeLesson(url.hash.slice(8));
-    url.searchParams.set('lesson',id);
-    localKey = storageScope+'/classroom/'+id;
-    teacherKey = storageScope+'/teacher/'+id;
-    if (!read(localKey)) {
-      save(localKey,blank(config));
-      save(teacherKey,{room:id,teacher:'local'});
-    }
-    if (url.href !== location.href) history.replaceState(null,'',url.href);
-    return;
-  }
-  const id = url.searchParams.get('lesson');
-  if (id === null) return;
-  const saved = validLessonId(id) && read(storageScope+'/classroom/'+id);
-  if (!saved) {
-    throw Error('請使用老師提供的完整本課連結。');
-  }
-  localKey = storageScope+'/classroom/'+id;
-  teacherKey = storageScope+'/teacher/'+id;
-  if (!url.hash) {
-    url.hash = 'lesson='+encodeLesson({id,config:saved.config});
-    history.replaceState(null,'',url.href);
-  }
-}
-
-function startPages() {
-  try {
-    selectLesson();
-    render();
-  } catch {
-    app.innerHTML = hero('國語任務教室','無法開啟課程','請重新開啟老師提供的完整本課連結。')+
-      '<a class="btn secondary" href="'+esc(location.pathname)+'">回網站首頁</a>';
-  }
-}
-
-startPages();
+render();
 </script>
 </html>
