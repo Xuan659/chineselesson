@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>六年級｜國語任務教室</title>
+<style>
+:root{font-family:system-ui,"Microsoft JhengHei",sans-serif;color:#243b38;background:#f7f5eb;line-height:1.6;--green:#15564a;--line:#d7e2d8}
+*{box-sizing:border-box}body{margin:0}header{background:#fffdf6;border-bottom:1px solid var(--line)}nav,main{max-width:1040px;margin:auto;padding:16px 24px}nav{display:flex;justify-content:space-between;align-items:center;gap:12px}main{padding-block:30px 60px}h1,h2,h3,p{margin:0 0 12px}h1{font-size:clamp(1.9rem,5vw,3.1rem);line-height:1.2}h2{line-height:1.35}
+.hero{border-radius:26px;background:#164f45;color:white;padding:clamp(24px,6vw,52px);margin-bottom:25px;position:relative;overflow:hidden}.hero>*{position:relative}.hero:before{content:"";position:absolute;right:-45px;top:-75px;width:270px;height:270px;border:40px solid #ffffff14;border-radius:50%}.tag{display:inline-block;border-radius:30px;background:#f7dd94;color:#473916;padding:3px 12px;font-weight:700;font-size:.88rem;margin-bottom:12px}.muted{color:#4c6660}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:13px}.card,fieldset{background:#fffdf8;border:1px solid var(--line);border-radius:16px;padding:19px;margin:0 0 15px;min-width:0}.grid .card{margin:0}.card h3{margin-bottom:4px}.bar{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin:12px 0}.panel{margin-top:22px}button,a.btn{display:inline-block;font:inherit;font-weight:700;border:1px solid var(--green);border-radius:10px;color:white;background:var(--green);padding:8px 14px;cursor:pointer;text-decoration:none}button.secondary,a.secondary{background:#fffdf8;color:var(--green)}button:disabled{opacity:.5;cursor:default}button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #bb7610;outline-offset:2px}label.field{display:block;font-weight:650;margin:10px 0 13px}input:not([type=checkbox]),textarea{display:block;width:100%;margin-top:5px;border:1px solid #92a9a0;background:#fff;border-radius:9px;padding:9px 11px;font:inherit;color:inherit}textarea{min-height:86px;resize:vertical}.pick{display:flex;align-items:center;gap:7px;border:1px solid var(--line);padding:7px 12px;border-radius:10px;cursor:pointer}.pick:has(:checked){background:#deede2;border-color:var(--green)}input[type=checkbox]{width:18px;height:18px;accent-color:var(--green)}legend{font-size:1.18rem;font-weight:800;padding:0 8px}.passage,.answer{white-space:pre-wrap;overflow-wrap:anywhere}.passage{padding:13px 16px;background:#edf3e9;border-radius:10px;margin-bottom:12px}.answer{font-size:clamp(1.15rem,3vw,1.75rem)}.err{color:#9b2724;font-weight:700}.status{font-weight:700}.progress{font-size:.88rem;font-weight:750;color:var(--green)}.steps{display:flex;flex-wrap:wrap;gap:5px}.steps button{padding:5px 9px;font-size:.88rem}.screen{min-height:260px}.screen h3{margin-top:18px}details{margin-bottom:14px}summary{cursor:pointer;font-weight:750}small{font-size:.88rem}
+.student-hero{padding:18px 24px;margin-bottom:16px}.student-hero h1{font-size:clamp(1.35rem,3vw,1.85rem)}.student-hero p{margin:0}
+.student-area{font-size:1.18rem}.student-area legend{font-size:1.32rem}.student-area .field{margin:16px 0}.student-area textarea{min-height:112px}.student-area button,.student-area a.btn,.student-area .pick{min-height:52px;padding:10px 16px}.student-area a.btn{display:inline-flex;align-items:center}.student-area .submit{width:100%;min-height:58px}.method-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}.pick input{width:23px;height:23px;flex-shrink:0}.pick:has(:disabled){opacity:.55;cursor:default}.student-word{font-size:clamp(2.3rem,7vw,4.4rem);line-height:1.25;color:#123f35}.prompt-label{display:block;font-size:1.05rem;font-weight:750;margin-bottom:4px}.student-passage{font-size:clamp(1.45rem,3.2vw,2.15rem);line-height:1.65}
+.projecting main{max-width:1500px;padding:12px clamp(16px,4vw,56px) 24px}.projecting header{display:none}.projection{font-family:"DFKai-SB","BiauKai","標楷體","KaiTi",serif}.projection .hero{padding:14px 24px;margin-bottom:14px}.projection .hero h1{font-size:clamp(1.45rem,2.7vw,2.25rem);margin:0}.projection .hero p{margin:2px 0 0}.projection .tag{margin-bottom:4px}.projection .screen{padding:clamp(18px,3vw,40px);min-height:0}.projection h3{font-size:clamp(1.25rem,2.2vw,1.85rem);margin:0 0 3px;color:#15564a}.projection .answer{font-size:clamp(1.65rem,3.5vw,3.2rem);line-height:1.42;margin-bottom:18px}.projection .emphasis{font-size:clamp(2.15rem,5vw,4.6rem);font-weight:bold;color:#174438}.projection .passage{font-size:clamp(1.25rem,2.6vw,2.15rem)}.projection .bar button,.projection .bar a{min-height:48px}.projection .controls{position:sticky;bottom:0;background:#f7f5eb;padding:6px 0;margin:0}.projection .screen > :last-child{margin-bottom:0}
+@media(max-width:540px){main,nav{padding-inline:12px}.student-area fieldset{padding:12px}.student-area .pick{padding-inline:8px}}
+.projection .slide-label{display:table;max-width:100%;padding:3px 13px;margin:0 0 7px;border-radius:8px;background:#f4e4b9;color:#4d3713;line-height:1.35}.projection .passage .slide-label{margin-bottom:9px}
+</style>
+<header><nav><strong>國語任務教室</strong><a class="btn secondary" href="#">首頁</a></nav></header>
+<main id="app" aria-live="polite"></main>
+<script>
+const app = document.querySelector('#app');
+const methods = ['熟字','拆詞','前後文','部件'];
+const groups = Array.from({length:7}, (_,i)=>i+1);
+const chinese = '一二三四五六七';
+const names = ['生難字詞','閱讀提問'];
+const groupName = n => '第'+chinese[n-1]+'組';
+const headings = [['生難字詞','易錯字或注音'],['提取或推論型問題','評論型問題']];
+const offline = false;
+const apiOrigin = '請填入 Cloudflare Worker 網址';
+const combinedQuestion = answer => answer.question ?? [
+  answer.literal && '提取型｜'+answer.literal,
+  answer.infer && '推論型｜'+answer.infer
+].filter(Boolean).join('\n');
+const preset = {
+  title:'雨後的校園（示範）',
+  groups:['泥濘','倒映','佇立','陸續','齊心協力','豁然開朗','依依不捨'].map((word,i)=>({word,paragraph:'第'+(i+1)+'段｜'+[
+    '雨剛停，操場邊的小徑變得泥濘。','水窪倒映著一片剛露面的藍天。','小安佇立在走廊，望著歪倒的盆栽。','同學陸續跑來，有人拿掃把，有人找來水桶。','大家齊心協力，把花盆搬回原位。','雲散開了，校園豁然開朗，小安也笑了。','放學鐘響後，大家依依不捨地離開整理好的花圃。'
+  ][i]}))
+};
+const blank = config => ({config,rounds:[{phase:'waiting',answers:{}},{phase:'waiting',answers:{}}]});
+const esc = value => String(value ?? '').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let state, room, teacher, route, step=0, drafts = {};
+let version = 0;
+let loadedRoom;
+let flushDraft;
+const read = key => {try{return JSON.parse(localStorage.getItem(key));}catch{return null;}};
+const save = (key,val) => localStorage.setItem(key,JSON.stringify(val));
+const localKey = 'reading-lab-local-v1', teacherKey = 'reading-lab-teacher-v1';
+function status(message, error=false){
+  const target=document.querySelector('#notice');
+  if(target){target.textContent=message;target.className=error?'err':'status';}
+}
+async function api(action, data={}){
+  if(offline){
+    let value=read(localKey) || blank(preset);
+    if(action==='get')return value;
+    if(action==='new')value=blank(data.config);
+    if(action==='phase')value.rounds[data.round].phase=data.phase;
+    if(action==='answer'){
+      const round=value.rounds[data.round];
+      if(round.phase!=='open')throw Error('這一關目前未開放作答。');
+      round.answers[data.group]=data.answer;
+    }
+    save(localKey,value);
+    return value;
+  }
+  if(!apiOrigin.startsWith('https://'))throw Error('請先設定課堂同步服務的網址。');
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),15000);
+  let response, value;
+  try{
+    response=await fetch(new URL('/api',apiOrigin),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,room,teacher,...data}),signal:controller.signal});
+    value=await response.json();
+  }catch{
+    throw Error('暫時連不上課堂，請確認網路後再試一次。');
+  }finally{clearTimeout(timer);}
+  if(!response.ok)throw Error(value.error || '連線失敗，請再試一次。');
+  return value;
+}
+const hero = (tag,title,subtitle,style='')=>'<section class="hero '+style+'"><span class="tag">'+tag+'</span><h1>'+esc(title)+'</h1><p>'+esc(subtitle)+'</p></section>';
+const notice = '<p id="notice" role="status"></p>';
+const field = (label,name,value='',multi=true,max=2000)=>'<label class="field">'+label+(multi?'<textarea required maxlength="'+max+'" name="'+name+'">'+esc(value)+'</textarea>':'<input required maxlength="'+max+'" name="'+name+'" value="'+esc(value)+'">')+'</label>';
+const phaseName = phase=>({waiting:'尚未開放',open:'作答中',closed:'已結束'})[phase];
+function groupHref(n){return offline?'#group/'+n:location.origin+location.pathname+'?class='+encodeURIComponent(room)+'#group/'+n;}
+function home(){
+  const cards=groups.map(n=>'<div class="card"><div class="progress">GROUP 0'+n+'</div><h3>'+groupName(n)+'</h3><a class="btn secondary" href="'+groupHref(n)+'">進入小組</a></div>').join('');
+  app.innerHTML=hero('六年級 · 國語',state?.config.title || '六年級閱讀任務','第一關　生難字詞　｜　第二關　閱讀提問')+
+    (offline?'<p class="muted">單機版｜作答與設定保存在這個瀏覽器。</p>':'')+
+    (state?'<section class="student-area"><h2>選擇你的小組</h2><div class="grid">'+cards+'</div></section>':'<div class="card">請用老師提供的本堂課連結進入。</div>')+
+    (new URLSearchParams(location.search).has('class')?'':'<div class="bar"><a href="#teacher" class="btn">教師控制台</a></div>')+notice;
+}
+function teacherPage(){
+  const priorKey='reading-lab-pages-v1:'+location.pathname.replace(/(?:index\.html)?$/,'').replace(/\/$/,'')+'/classroom';
+  const config=state?.config || read(priorKey)?.config || preset;
+  app.innerHTML=hero('教師控制台','國語任務教室','設定課文、收取作答，並帶全班依序分享。')+
+    '<div class="card"><button class="secondary" id="resume">載入最新課堂</button><p class="muted">換裝置，或在另一台裝置建立新課後，按這裡接回最新的課堂。</p></div>'+
+    (state?'<div class="card"><h2>'+esc(state.config.title)+'</h2>'+
+      (!offline?'<div class="bar"><button class="secondary" id="copy">複製本堂課學生入口</button></div><p class="muted">學生開啟連結後，可選自己的組別。</p>':'')+
+      '<div class="grid">'+state.rounds.map((round,i)=>{
+        const count=Object.values(round.answers).filter(Boolean).length;
+        const controls=round.phase==='open'
+          ? '<button data-phase="closed" data-round="'+i+'">停止作答</button>'
+          : '<div class="bar"><button data-phase="open" data-round="'+i+'">'+(round.phase==='closed'?'重新開放作答':'開放作答')+'</button>'+
+            (round.phase==='closed'?'<a class="btn secondary" href="#show/'+i+'">開始展示</a>':'')+'</div>';
+        return '<section class="card"><h3>第'+chinese[i]+'關｜'+names[i]+'</h3><p class="progress">'+phaseName(round.phase)+' · '+count+' / 7 組</p><p><small>'+groups.map(n=>n+'組 '+(round.answers[n]?'✓':'○')).join('　')+'</small></p>'+controls+'</section>';
+      }).join('')+'</div><div class="bar"><button class="secondary" id="refresh">更新交卷狀態</button></div></div>':'')+
+    notice+'<details class="card" '+(state?'':'open')+'><summary>更換課文／建立新一堂課</summary><form id="config"><p class="muted">可先修改示範內容。建立新課後，請使用新一堂課的學生入口。</p>'+
+      field('課文名稱','title',config.title,false,100)+
+      groups.map(n=>'<fieldset><legend>'+groupName(n)+'</legend>'+field('第一關｜分配詞語','w'+n,config.groups[n-1].word,false,150)+field('第二關｜分配段落（可填段落編號或貼上內文）','p'+n,config.groups[n-1].paragraph,true,5000)+'</fieldset>').join('')+
+      '<button>建立這堂課</button></form></details>';
+  document.querySelector('#resume').onclick=async event=>{
+    const button=event.currentTarget;
+    const setupCode=prompt('請輸入教師開課密碼');
+    if(setupCode===null)return;
+    button.disabled=true;
+    try{
+      const latest=await api('resume',{setupCode});
+      const keys={room:latest.room,teacher:latest.teacher};
+      save(teacherKey,keys);
+      ({room,teacher}=keys);
+      state=latest.state;
+      drafts={};
+      teacherPage();
+      status('已載入最新課堂。');
+    }catch(error){status(error.message,true);button.disabled=false;}
+  };
+  document.querySelector('#config').onsubmit=async event=>{
+    event.preventDefault();
+    if(state && !confirm(offline?'建立新課會清空這個瀏覽器的本堂作答。確定建立？':'確定建立新課並切換教師控制台？'))return;
+    const form=event.currentTarget, data=new FormData(form);
+    const config={title:data.get('title').trim(),groups:groups.map(n=>({word:data.get('w'+n).trim(),paragraph:data.get('p'+n).trim()}))};
+    if(!config.title || config.groups.some(g=>!g.word || !g.paragraph))return status('請完整填寫課名、詞語與段落。',true);
+    form.querySelector('button').disabled=true;
+    try{
+      const keys={room:offline?'local':crypto.randomUUID(),teacher:offline?'local':crypto.randomUUID()};
+      const setupCode=prompt('請輸入教師開課密碼');
+      if(setupCode===null){form.querySelector('button').disabled=false;return;}
+      state=await api('new',{...keys,config,setupCode});
+      ({room,teacher}=keys); save(teacherKey,keys); drafts={}; teacherPage(); status('新一堂課已建立。');
+    }catch(error){status(error.message,true);form.querySelector('button').disabled=false;}
+  };
+  document.querySelectorAll('[data-phase]').forEach(button=>button.onclick=async ()=>{
+    button.disabled=true;
+    const round=Number(button.dataset.round), phase=button.dataset.phase;
+    try{state=await api('phase',{round,phase});if(phase==='closed')location.hash='show/'+round;else teacherPage();}
+    catch(error){status(error.message,true);button.disabled=false;}
+  });
+  const refresh=document.querySelector('#refresh');
+  if(refresh)refresh.onclick=async ()=>{try{state=await api('get');teacherPage();status('交卷狀態已更新。');}catch(error){status(error.message,true);}};
+  const copy=document.querySelector('#copy');
+  if(copy)copy.onclick=async ()=>{
+    const url=location.origin+location.pathname+'?class='+encodeURIComponent(room);
+    try{await navigator.clipboard.writeText(url);status('已複製學生入口。');}catch{status(url);}
+  };
+}
+function student(n){
+  app.innerHTML=hero('小組作答',groupName(n),state.config.title,'student-hero')+'<section class="student-area"><div class="grid">'+state.rounds.map((round,i)=>
+    '<section class="card"><span class="tag">第'+chinese[i]+'關</span><h2>'+names[i]+'</h2><p class="progress">'+(round.answers[n]?'已提交 · ':'')+phaseName(round.phase)+'</p>'+
+    (round.phase==='open'?'<a class="btn" href="#group/'+n+'/'+i+'">'+(round.answers[n]?'查看或修改':'開始作答')+'</a>':'')+'</section>').join('')+
+    '</div><div class="bar"><button class="secondary" id="refresh">更新作答狀態</button></div>'+notice+'</section>';
+  document.querySelector('#refresh').onclick=()=>render(true);
+}
+function answerPage(n,i){
+  const round=state.rounds[i], task=state.config.groups[n-1];
+  if(round.phase!=='open'){student(n);return status('這一關目前未開放作答。');}
+  const key=n+'/'+i, answerKey='reading-lab-answer/'+room+'/'+key;
+  const draftKey='reading-lab-draft/'+room+'/'+key;
+  const previous=offline||teacher ? round.answers[n] : read(answerKey);
+  const data=drafts[key] ||= structuredClone(read(draftKey) || previous || {});
+  data.selected ||= [];
+  data.reasons ||= {};
+  const content=i===0?
+    '<fieldset><legend>任務一｜生難字詞</legend><p class="passage student-word"><span class="prompt-label">詞語</span><strong>'+esc(task.word)+'</strong></p><p><strong>猜測方法</strong>（至少選 1 種，最多選 2 種）</p><div class="method-grid">'+methods.map(m=>'<label class="pick"><input type="checkbox" value="'+m+'" '+(data.selected.includes(m)?'checked':'')+'>'+m+'</label>').join('')+'</div><p><strong>線索或發現</strong></p><div id="reasons"></div>'+field('推測意思','meaning',data.meaning)+'</fieldset>'+
+    '<fieldset><legend>任務二｜易錯字或注音</legend>'+field('易錯字或注音','wrong',data.wrong,false,150)+field('為什麼容易錯？','why',data.why)+'</fieldset>':
+    '<fieldset><legend>任務一｜根據分配段落設計問題</legend><p class="passage student-passage"><span class="prompt-label">分配段落</span>'+esc(task.paragraph)+'</p>'+
+    field('提取或推論型問題｜根據這個段落設計一題。','question',combinedQuestion(data))+'</fieldset>'+
+    '<fieldset><legend>任務二｜根據全課設計評論型問題</legend>'+field('評論型問題','opinion',data.opinion)+'</fieldset>';
+  app.innerHTML=hero('第'+chinese[i]+'關',groupName(n)+'｜'+names[i],state.config.title,'student-hero')+'<section class="student-area"><div class="bar"><a class="btn secondary" href="#group/'+n+'">回小組頁</a></div><form>'+content+'<button class="submit">提交小組答案</button></form>'+notice+'</section>';
+  const form=document.querySelector('form');
+  let draftTimer;
+  let dirty=false;
+  const saveDraft=()=>{
+    clearTimeout(draftTimer);
+    if(!dirty)return;
+    try{save(draftKey,data);}catch{/* The open form still retains the draft. */}
+  };
+  flushDraft=saveDraft;
+  const queueDraft=()=>{
+    dirty=true;
+    clearTimeout(draftTimer);
+    draftTimer=setTimeout(saveDraft,300);
+  };
+  form.oninput=event=>{
+    const name=event.target.name;
+    if(name.startsWith('reason-'))data.reasons[name.slice(7)]=event.target.value;
+    else if(name)data[name]=event.target.value;
+    if(name)queueDraft();
+  };
+  if(i===0){
+    const checks=[...form.querySelectorAll('input[type=checkbox]')];
+    const sync=()=>{
+      data.selected=checks.filter(c=>c.checked).map(c=>c.value);
+      checks.forEach(c=>c.disabled=!c.checked&&data.selected.length===2);
+      document.querySelector('#reasons').innerHTML=data.selected.map(m=>field(m+'｜線索或發現','reason-'+m,data.reasons[m])).join('');
+    };
+    checks.forEach(c=>c.onchange=()=>{sync();queueDraft();});sync();
+  }
+  form.onsubmit=async event=>{
+    event.preventDefault();
+    const trimmed=Object.fromEntries([...new FormData(form)].map(([k,v])=>[k,v.trim()]));
+    if(i===0&&!data.selected.length)return status('請至少選擇一種方法。',true);
+    if(Object.values(trimmed).some(value=>!value))return status('請填完每個作答欄位。',true);
+    const answer=i===0?{selected:data.selected,reasons:Object.fromEntries(data.selected.map(m=>[m,trimmed['reason-'+m]])),meaning:trimmed.meaning,wrong:trimmed.wrong,why:trimmed.why}:trimmed;
+    const button=form.querySelector('button');button.disabled=true;
+    const fields=[...form.querySelectorAll('fieldset')];
+    fields.forEach(fieldset=>fieldset.disabled=true);
+    saveDraft();
+    status('正在提交小組答案…');
+    try{
+      await api('answer',{round:i,group:n,answer});
+      dirty=false;clearTimeout(draftTimer);
+      try{if(!offline&&!teacher)save(answerKey,answer);localStorage.removeItem(draftKey);}catch{/* Submission is already saved on the server. */}
+      delete drafts[key];
+      if(form.isConnected){
+        if(!offline&&!teacher)round.answers[n]=true;
+        location.hash='group/'+n;
+      }
+    }
+    catch(error){if(form.isConnected)status(error.message,true);button.disabled=false;fields.forEach(fieldset=>fieldset.disabled=false);}
+  };
+}
+let checkingStudentPhase=false;
+async function syncStudentPhase(){
+  if(offline || teacher || !room || !state || document.hidden || checkingStudentPhase)return;
+  const [page,group,round]=route;
+  const n=Number(group), i=Number(round);
+  if(page!=='group' || !groups.includes(n))return;
+  checkingStudentPhase=true;
+  const request=version;
+  try{
+    const {phases}=await api('status');
+    if(request!==version || document.querySelector('.submit:disabled'))return;
+    const activeRound=[0,1].includes(i);
+    const changed=phases.some((phase,index)=>(!activeRound || index===i) && phase!==state.rounds[index].phase);
+    state.rounds.forEach((item,index)=>item.phase=phases[index]);
+    if(!changed)return;
+    flushDraft?.();
+    flushDraft=undefined;
+    if(activeRound)answerPage(n,i);else student(n);
+  }catch{/* Keep the current screen and try again at the next check. */}
+  finally{checkingStudentPhase=false;}
+}
+function show(i){
+  if(!state || state.rounds[i]?.phase!=='closed'){teacherPage();return;}
+  const n=i===0?Math.floor(step/2)+1:step%7+1;
+  const part=i===0?step%2:Math.floor(step/7);
+  const answer=state.rounds[i].answers[n], task=state.config.groups[n-1];
+  const panel=(title,value,important=false)=>'<h3 class="slide-label">'+title+'</h3><p class="answer '+(important?'emphasis':'')+'">'+esc(value)+'</p>';
+  let body;
+  if(!answer)body='<p class="answer">尚未提交</p>';
+  else if(i===0)body=part===0?panel('詞語',task.word,true)+answer.selected.map(m=>panel(m+'｜線索或發現',answer.reasons[m])).join('')+panel('推測意思',answer.meaning ?? '未填寫',true):panel('易錯字或注音',answer.wrong,true)+panel('為什麼容易錯？',answer.why);
+  else body=part===0?'<div class="passage"><h3 class="slide-label">分配段落</h3>'+esc(task.paragraph)+'</div>'+panel('提取或推論型問題',combinedQuestion(answer),true):panel('評論型問題｜全課',answer.opinion,true);
+  document.body.classList.add('projecting');
+  app.innerHTML='<section class="projection">'+hero('全班分享 · 第'+(step+1)+'／14 張',groupName(n)+'｜'+headings[i][part],state.config.title)+
+    '<div class="card screen">'+body+'</div><div class="bar controls"><button class="secondary" id="prev" '+(step===0?'disabled':'')+'>上一張</button>'+
+    (step===13?'<a class="btn" href="#teacher">完成展示</a>':'<button id="next">下一張</button>')+
+    '<a href="#teacher" class="btn secondary">回教師控制台</a></div></section>';
+  document.querySelector('#prev').onclick=()=>{step--;show(i);};
+  const next=document.querySelector('#next');if(next)next.onclick=()=>{step++;show(i);};
+  (next || document.querySelector('a[href="#teacher"]'))?.focus();
+  window.scrollTo(0,0);
+}
+async function render(forceRefresh=false){
+  flushDraft?.();
+  flushDraft=undefined;
+  document.body.classList.remove('projecting');
+  const request=++version;
+  const params=new URLSearchParams(location.search);
+  const keys=read(teacherKey);
+  room=params.get('class') || keys?.room;
+  teacher=params.has('class')?undefined:keys?.teacher;
+  route=location.hash.slice(1).split('/');
+  try{
+    const cachedStudent=!offline && !teacher && room && room===loadedRoom && state && forceRefresh!==true;
+    const value=cachedStudent?state:offline||room?await api('get'):null;
+    if(request!==version)return;
+    state=value;
+    loadedRoom=room;
+    const [page,first,second]=route;
+    const n=Number(first), round=Number(second);
+    if((teacher||offline||!params.has('class'))&&page==='teacher'){teacherPage();return;}
+    if((teacher||offline)&&page==='show'&&[0,1].includes(n)){step=0;show(n);return;}
+    if(state&&page==='group'&&groups.includes(n)){
+      if(second!==undefined&&[0,1].includes(round))answerPage(n,round);else student(n);
+      return;
+    }
+    home();
+  }catch(error){
+    if(request===version)app.innerHTML=hero('國語任務教室','無法開啟這堂課',error.message)+'<button id="retry">重試</button>';
+    document.querySelector('#retry')?.addEventListener('click',render);
+  }
+}
+addEventListener('hashchange',render);
+if(!offline)setInterval(syncStudentPhase,3000+Math.random()*700);
+addEventListener('pagehide',()=>flushDraft?.());
+addEventListener('keydown',event=>{
+  if(!document.body.classList.contains('projecting') || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey)return;
+  const control=event.key==='ArrowLeft'?'#prev':event.key==='ArrowRight'?'#next':null;
+  if(!control)return;
+  event.preventDefault();
+  document.querySelector(control)?.click();
+});
+render();
+</script>
+</html>
